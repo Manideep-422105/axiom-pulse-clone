@@ -1,26 +1,48 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* --- 1. THEME CONFIGURATION --- */
+@theme {
+  /* Your Custom Colors */
+  --color-background: #000000;
+  --color-primaryBlue: #2955FF;
+  --color-primaryBlueHover: #526FFF;
+  --color-primaryGreen: #10b981;
+  --color-primaryStroke: #22242D;
+  --color-secondaryStroke: #2A2D36;
+  --color-textPrimary: #FFFFFF;
+  --color-textSecondary: #9CA3AF;
+  --color-textTertiary: #6B7280;
+  --color-backgroundSecondary: #111216;
+  /* Your Custom Animation */
+  --animate-ticker: ticker 10s linear infinite;
+
+  /* Keep existing font variables if you are using Geist/Google Fonts */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* --- 2. KEYFRAMES (Standard CSS) --- */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* --- 3. BASE STYLES --- */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-textPrimary);
+  font-family: var(--font-sans);
+}
+
+/* --- 4. UTILITY COMPONENTS --- */
+.header-btn {
+  @apply w-9 h-9 flex items-center justify-center rounded-xl 
+         border border-primaryStroke bg-black/30 
+         hover:bg-gray-800 transition;
+}
+
+.header-pill {
+  @apply flex items-center gap-2 px-4 py-2 rounded-xl 
+         border border-primaryStroke bg-black/30 
+         hover:bg-gray-800 transition;
 }
