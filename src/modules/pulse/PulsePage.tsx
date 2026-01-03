@@ -1,7 +1,7 @@
-import Header from "./components/Header";
-import { SubHeader } from "./components/SubHeader";
-import TokenBoard from "./components/TokenBoard";
-import Footer from "./components/Footer";
+import Header from "../../components/organisms/Header";
+import { SubHeader } from "./components/molecules/SubHeader";
+import TokenBoard from "./components/organisms/TokenBoard";
+import Footer from "../../components/organisms/Footer";
 
 export default function PulsePage() {
   return (

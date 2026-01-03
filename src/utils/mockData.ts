@@ -1,4 +1,4 @@
-import { TokenData } from "@/modules/pulse/components/TokenCard";
+import { TokenData } from "@/modules/pulse/components/molecules/TokenCard";
 
 // --- 1. ASSETS & NAMES ---
 const tokenImages = [
@@ -17,45 +17,92 @@ const tokenImages = [
   "https://cryptologos.cc/logos/sei-sei-logo.png",
   "https://cryptologos.cc/logos/jupiter-ag-jup-logo.png",
   "https://cryptologos.cc/logos/tether-usdt-logo.png",
-  "https://cryptologos.cc/logos/dogecoin-doge-logo.png"
+  "https://cryptologos.cc/logos/dogecoin-doge-logo.png",
 ];
 
-const newNames = ["BabyPepe", "ElonMars", "SafeMoon2", "CatWifHat", "DogeKiller", "RugCheck", "BasedGod", "PepeGPT", "MatrixInu", "YOLO"];
-const finalNames = ["GigaChad", "MogCoin", "Retardio", "PopCat", "Michi", "Slerf", "Myro", "Ponke", "Billy", "TrumpCoin"];
-const migratedNames = ["WIF", "BONK", "PEPE", "SOL", "JUP", "RAY", "PYTH", "ORCA", "WEN", "BOME"];
+const newNames = [
+  "BabyPepe",
+  "ElonMars",
+  "SafeMoon2",
+  "CatWifHat",
+  "DogeKiller",
+  "RugCheck",
+  "BasedGod",
+  "PepeGPT",
+  "MatrixInu",
+  "YOLO",
+];
+const finalNames = [
+  "GigaChad",
+  "MogCoin",
+  "Retardio",
+  "PopCat",
+  "Michi",
+  "Slerf",
+  "Myro",
+  "Ponke",
+  "Billy",
+  "TrumpCoin",
+];
+const migratedNames = [
+  "WIF",
+  "BONK",
+  "PEPE",
+  "SOL",
+  "JUP",
+  "RAY",
+  "PYTH",
+  "ORCA",
+  "WEN",
+  "BOME",
+];
 
 // --- 2. HELPERS ---
 const random = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 const generateBadges = (status: string): TokenData["badges"] => {
   const badges: TokenData["badges"] = [];
-  
+
   // Logic: Migrated tokens usually have "Holders" or "Blue" badges
   if (status === "migrated") {
     badges.push({ type: "holders", label: "Top 1%", color: "green" });
-    if (Math.random() > 0.5) badges.push({ type: "chef", label: "DEX", color: "green" });
+    if (Math.random() > 0.5)
+      badges.push({ type: "chef", label: "DEX", color: "green" });
     return badges;
   }
 
   // Logic: New tokens have risky/volatile badges
   if (status === "new") {
-    badges.push({ type: "holders", label: `${Math.floor(Math.random() * 50)}%`, color: "red" });
-    if (Math.random() > 0.6) badges.push({ type: "sniper", label: "Bot", color: "red" });
-    if (Math.random() > 0.7) badges.push({ type: "ghost", label: "New", color: "green" });
+    badges.push({
+      type: "holders",
+      label: `${Math.floor(Math.random() * 50)}%`,
+      color: "red",
+    });
+    if (Math.random() > 0.6)
+      badges.push({ type: "sniper", label: "Bot", color: "red" });
+    if (Math.random() > 0.7)
+      badges.push({ type: "ghost", label: "New", color: "green" });
     return badges;
   }
 
   // Logic: Final tokens are mixed
   badges.push({ type: "boxes", label: "Whale", color: "green" });
-  if (Math.random() > 0.5) badges.push({ type: "holders", label: "Distr", color: "green" });
-  
+  if (Math.random() > 0.5)
+    badges.push({ type: "holders", label: "Distr", color: "green" });
+
   return badges;
 };
 
 // --- 3. GENERATOR ---
-export const generateMockToken = (id: number): TokenData & { status: string } => {
+export const generateMockToken = (
+  id: number
+): TokenData & { status: string } => {
   // Cycle through statuses to ensure we have data for ALL columns
-  const statuses: Array<"new" | "final" | "migrated"> = ["new", "final", "migrated"];
+  const statuses: Array<"new" | "final" | "migrated"> = [
+    "new",
+    "final",
+    "migrated",
+  ];
   const status = statuses[id % 3]; // Ensures even distribution (0=new, 1=final, 2=migrated...)
 
   let name = "";
@@ -93,22 +140,25 @@ export const generateMockToken = (id: number): TokenData & { status: string } =>
     image: random(tokenImages),
     ticker: ticker,
     name: name,
-    address: `${Math.random().toString(36).substring(2, 6)}...${Math.random().toString(36).substring(2, 6)}`,
+    address: `${Math.random().toString(36).substring(2, 6)}...${Math.random()
+      .toString(36)
+      .substring(2, 6)}`,
     timeAgo: timeAgo,
-    
+
     price: price,
     volume: `$${(mc / 5).toFixed(1)}K`, // Approx volume relative to MC
     marketCap: `$${(mc / 1000).toFixed(1)}K`,
-    
+
     protocol: protocol,
-    
+
     holders: Math.floor(mc / 10), // More MC = More holders
     topTraders: Math.floor(Math.random() * 20),
     trophies: Math.floor(Math.random() * 10),
     crowns: `0/${Math.floor(Math.random() * 3) + 1}`,
     views: Math.floor(Math.random() * 5000) + 100,
-    
-    curveProgress: status === "migrated" ? 1.0 : parseFloat(Math.random().toFixed(3)),
+
+    curveProgress:
+      status === "migrated" ? 1.0 : parseFloat(Math.random().toFixed(3)),
     txCount: Math.floor(Math.random() * 500) + 10,
 
     hasQuill: Math.random() > 0.7,

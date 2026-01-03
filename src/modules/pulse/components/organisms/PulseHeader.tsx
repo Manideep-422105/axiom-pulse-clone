@@ -11,10 +11,10 @@ import {
   RiWalletLine,
   RiFlashlightFill,
 } from "react-icons/ri";
-import DisplayModal from "./DisplayModal"; // Import the modal
-import HotkeysModal from "./HotkeysModal"; // <--- Import
-import AlertsModal from "./AlertsModal"; // <--- Import
-import SnipeSettingsModal from "./SnipeSettingsModal";
+import DisplayModal from "./modals/DisplayModal"; // Import the modal
+import HotkeysModal from "./modals/HotkeysModal"; // <--- Import
+import AlertsModal from "./modals/AlertsModal"; // <--- Import
+import SnipeSettingsModal from "./modals/SnipeSettingsModal";
 export default function PulseHeader() {
   const [isDisplayOpen, setIsDisplayOpen] = useState(false);
   const [isHotkeysOpen, setIsHotkeysOpen] = useState(false);

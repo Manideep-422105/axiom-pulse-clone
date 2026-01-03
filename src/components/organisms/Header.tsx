@@ -15,14 +15,10 @@ import {
 } from "react-icons/ri";
 
 import { IconType } from "react-icons";
-
-import DepositModal from "./DepositModal";
-
-import WatchlistModal from "./WatchlistModal"; // <--- IMPORT
-
-import NotificationsModal from "./NotificationsModal";
-
-import WalletModal from "./WalletModal"; // <--- IMPORT
+import DepositModal from "../../modules/pulse/components/organisms/modals/DepositModal";
+import WatchlistModal from "../../modules/pulse/components/organisms/modals/WatchlistModal"; // <--- IMPORT
+import NotificationsModal from "../../modules/pulse/components/organisms/modals/NotificationsModal";
+import WalletModal from "../../modules/pulse/components/organisms/modals/WalletModal"; // <--- IMPORT
 
 // --- Interfaces ---
 

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 
-import TokenCard, { TokenData } from "./TokenCard";
-import ColumnHeader from "./ColumnHeader";
+import TokenCard, { TokenData } from "../molecules/TokenCard";
+import ColumnHeader from "../molecules/ColumnHeader";
 
 export interface TokenColumnProps {
   title: string;
@@ -22,8 +22,7 @@ export default function TokenColumn({
     const q = searchQuery.toLowerCase();
     return tokens.filter(
       (t) =>
-        t.name.toLowerCase().includes(q) ||
-        t.ticker.toLowerCase().includes(q)
+        t.name.toLowerCase().includes(q) || t.ticker.toLowerCase().includes(q)
     );
   }, [tokens, searchQuery]);
 

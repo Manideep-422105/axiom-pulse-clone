@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setInitialTokens, updateTokenData } from "@/store/appSlice";
 import { RootState } from "@/store/store";
-import { TokenData } from "@/modules/pulse/components/TokenCard";
+import { TokenData } from "@/modules/pulse/components/molecules/TokenCard";
 
 // --- 1. HELPER: Mock Data Generator ---
 const tickers = [
