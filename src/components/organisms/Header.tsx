@@ -24,25 +24,19 @@ import WalletModal from "../../modules/pulse/components/organisms/modals/WalletM
 
 interface NavButtonProps {
   label: string;
-
   href: string;
-
   active?: boolean;
 }
 
 interface IconButtonProps {
   icon: IconType;
-
   className?: string;
-
   onClick?: () => void;
 }
 
 interface ChainOption {
   id: "sol" | "bnb";
-
   name: string;
-
   icon: string;
 }
 
@@ -51,17 +45,12 @@ interface ChainOption {
 const CHAINS: ChainOption[] = [
   {
     id: "sol",
-
     name: "Solana",
-
     icon: "https://cryptologos.cc/logos/solana-sol-logo.svg?v=025",
   },
-
   {
     id: "bnb",
-
     name: "BNB",
-
     icon: "https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=025",
   },
 ];
@@ -70,21 +59,15 @@ const CHAINS: ChainOption[] = [
 
 const NavButton: React.FC<NavButtonProps> = ({
   label,
-
   href,
-
   active = false,
 }) => (
   <Link href={href}>
     <button
       className={`
-
       flex flex-row h-[32px] text-nowrap px-[8px] xl:px-[14px]
-
       justify-start items-center
-
       rounded-[4px] font-medium text-[14px]
-
       transition-all duration-0 hover:duration-135 ease-in-out
 
       ${
