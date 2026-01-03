@@ -3,101 +3,65 @@ import { RiFlashlightFill, RiEqualizer3Line } from "react-icons/ri";
 
 interface ColumnHeaderProps {
   title: string;
-  // NEW: Props for search functionality
   searchQuery: string;
   onSearchChange: (value: string) => void;
 }
 
-export default function ColumnHeader({ title, searchQuery, onSearchChange }: ColumnHeaderProps) {
+export default function ColumnHeader({
+  title,
+  searchQuery,
+  onSearchChange,
+}: ColumnHeaderProps) {
   return (
-    <div className="hidden sm:flex sticky top-0 z-30 whitespace-nowrap flex-row w-full gap-3 min-h-[48px] justify-end items-center pr-3 pl-1 lg:pl-3 xl:pl-3 border-b border-primaryStroke bg-backgroundSecondary">
-      {/* --- LEFT: Title --- */}
-      <div className="flex flex-row items-center gap-4 flex-1">
-        <span className="text-textPrimary text-[16px] font-medium flex-1">
+    <div className="hidden sm:flex sticky top-0 z-30 flex-row w-full gap-3 min-h-[48px] justify-end items-center pr-3 pl-1 lg:pl-3 border-b border-primaryStroke bg-backgroundSecondary">
+      {/* Left */}
+      <div className="flex items-center gap-4 flex-1">
+        <span className="text-textPrimary text-[16px] font-medium">
           {title}
         </span>
       </div>
 
-      {/* --- RIGHT: Controls --- */}
-      <div className="flex flex-row items-center gap-3">
-        {/* 1. Search Bar */}
-        <div className="whitespace-nowrap font-normal border border-primaryStroke flex flex-row flex-1 min-w-0 max-w-[200px] h-[28px] pl-[9px] pr-[1px] gap-2 justify-start items-center rounded-full transition-colors duration-125 cursor-text overflow-hidden hover:bg-primaryStroke/35">
+      {/* Right */}
+      <div className="flex items-center gap-3">
+        {/* Search */}
+        <div className="border border-primaryStroke flex items-center h-[28px] pl-[9px] pr-[6px] gap-2 rounded-full max-w-[200px] hover:bg-primaryStroke/35">
           <input
-            placeholder="Search by ticker or name"
-            autoComplete="new-password"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
-            className="flex flex-1 min-w-0 text-[12px] bg-transparent outline-none text-textPrimary font-medium placeholder:text-textTertiary"
-            type="text"
-            // BINDING THE INPUT
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search by ticker or name"
+            className="flex-1 min-w-0 text-[12px] bg-transparent outline-none text-textPrimary placeholder:text-textTertiary"
           />
         </div>
 
-        {/* 2. Complex Filter Pill (Visible on Large screens) */}
+        {/* Filter pill (lg+) */}
         <div className="hidden lg:block">
-          <div className="overflow-hidden whitespace-nowrap border border-primaryStroke font-normal flex flex-row h-[28px] pl-1 gap-1.5 justify-start items-center rounded-full hover:bg-primaryStroke/35 transition-colors duration-125 cursor-pointer">
-            {/* Flashlight Icon */}
-            <span className="flex text-[14px] text-textTertiary font-medium pl-1">
-              <RiFlashlightFill />
-            </span>
-
-            {/* Input Field */}
-            <div className="flex flex-1 sm:max-w-[32px] min-w-0">
-              <input
-                placeholder="0.0"
-                className="text-[12px] w-full text-textPrimary placeholder:text-textTertiary font-medium outline-none bg-transparent text-left"
-                type="text"
-              />
-            </div>
-
-            {/* SOL Icon */}
+          <div className="border border-primaryStroke flex items-center h-[28px] pl-2 pr-2 gap-2 rounded-full hover:bg-primaryStroke/35">
+            <RiFlashlightFill className="text-textTertiary text-[14px]" />
+            <input
+              placeholder="0.0"
+              className="w-[32px] text-[12px] bg-transparent outline-none text-textPrimary placeholder:text-textTertiary"
+            />
             <img
-              alt="SOL"
-              width="14"
-              height="14"
               src="https://cryptologos.cc/logos/solana-sol-logo.png"
+              alt="SOL"
               className="w-3.5 h-3.5"
             />
-
-            {/* P1 / P2 / P3 Toggles */}
-            <div className="border-l border-primaryStroke flex h-full pr-[2px] pl-[2px] gap-[3px] justify-center items-center cursor-pointer">
-              <button
-                type="button"
-                className="group w-[22px] h-[22px] flex flex-row gap-1 rounded-[4px] justify-center items-center transition-colors ease-in-out duration-125 hover:bg-primaryBlueHover/10"
-              >
-                <span className="text-[12px] font-medium transition-colors ease-in-out duration-125 text-primaryBlue hover:text-primaryBlueHover">
-                  P1
-                </span>
-              </button>
-              <button
-                type="button"
-                className="group w-[22px] h-[22px] flex flex-row gap-1 rounded-[4px] justify-center items-center transition-colors ease-in-out duration-125 hover:bg-primaryStroke/60"
-              >
-                <span className="text-[12px] font-medium transition-colors ease-in-out duration-125 text-textSecondary">
-                  P2
-                </span>
-              </button>
-              <button
-                type="button"
-                className="group w-[22px] h-[22px] flex flex-row gap-1 rounded-r-full rounded-l-[4px] justify-center items-center transition-colors ease-in-out duration-125 hover:bg-primaryStroke/60"
-              >
-                <span className="text-[12px] font-medium transition-colors ease-in-out duration-125 text-textSecondary">
-                  P3
-                </span>
-              </button>
+            <div className="border-l border-primaryStroke flex gap-1 pl-1">
+              {["P1", "P2", "P3"].map((p) => (
+                <button
+                  key={p}
+                  className="w-[22px] h-[22px] text-[12px] rounded hover:bg-primaryStroke/60 text-textSecondary"
+                >
+                  {p}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* 3. Settings Icon */}
-        <button
-          type="button"
-          className="flex flex-row p-1 w-[24px] h-[24px] justify-center items-center transition-opacity duration-150 ease-in-out cursor-pointer rounded-md relative hover:bg-primaryStroke/30"
-        >
-          <RiEqualizer3Line className="text-[16px] text-textSecondary" />
+        {/* Settings */}
+        <button className="w-[24px] h-[24px] flex items-center justify-center rounded hover:bg-primaryStroke/30">
+          <RiEqualizer3Line className="text-textSecondary text-[16px]" />
         </button>
       </div>
     </div>
