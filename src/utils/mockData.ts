@@ -32,7 +32,7 @@ const generateBadges = (status: string): TokenData["badges"] => {
   
   // Logic: Migrated tokens usually have "Holders" or "Blue" badges
   if (status === "migrated") {
-    badges.push({ type: "holders", label: "Top 1%", color: "blue" });
+    badges.push({ type: "holders", label: "Top 1%", color: "green" });
     if (Math.random() > 0.5) badges.push({ type: "chef", label: "DEX", color: "green" });
     return badges;
   }
