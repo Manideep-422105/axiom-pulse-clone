@@ -1,22 +1,12 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setInitialTokens, updateTokenData } from "@/store/appSlice";
+// Make sure this points to your new slice file location
+import { setInitialTokens, updateTokenData, selectAllTokens, selectTokenIds } from "@/store/appSlice";
 import { RootState } from "@/store/store";
 import { TokenData } from "@/modules/pulse/components/molecules/TokenCard";
 
 // --- 1. HELPER: Mock Data Generator ---
-const tickers = [
-  "PEPE",
-  "BONK",
-  "WIF",
-  "POPCAT",
-  "GIGA",
-  "MICHI",
-  "MOG",
-  "TRUMP",
-  "SLERF",
-  "MYRO",
-];
+const tickers = ["PEPE", "BONK", "WIF", "POPCAT", "GIGA", "MICHI", "MOG", "TRUMP", "SLERF", "MYRO"];
 const images = [
   "https://cryptologos.cc/logos/pepe-pepe-logo.png",
   "https://cryptologos.cc/logos/bonk1-bonk-logo.png",
@@ -50,57 +40,47 @@ const generateBadges = (): TokenData["badges"] => {
     });
   }
 
-  if (Math.random() > 0.5)
-    badges.push({ type: "ghost", label: "5%", color: "green" });
-  if (Math.random() > 0.5)
-    badges.push({ type: "boxes", label: "0%", color: "green" });
+  if (Math.random() > 0.5) badges.push({ type: "ghost", label: "5%", color: "green" });
+  if (Math.random() > 0.5) badges.push({ type: "boxes", label: "0%", color: "green" });
 
   return badges;
 };
 
-// CRITICAL FIX: Return type includes status, and function assigns it
+// CRITICAL FIX: Ensure unique addresses for Entity Adapter
 const generateMockToken = (id: number): TokenData & { status: string } => {
   const price = Math.random() * 0.01 + 0.0001;
   const mcRaw = price * 1000000000;
-
-  // 1. Pick a random status for the columns
   const statuses = ["new", "final", "migrated"] as const;
   const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+  
+  // Create a genuinely unique address
+  const uniqueAddress = `7LTp${id}${Math.random().toString(36).substring(7)}`;
 
   return {
     ticker: random(tickers),
     name: "Mock Token",
     image: random(images),
-    address: `7LTp...${Math.floor(Math.random() * 999)}`,
+    address: uniqueAddress, // Used as ID
     timeAgo: `${Math.floor(Math.random() * 59) + 1}s`,
-
     price: price,
     volume: `$${(Math.random() * 500).toFixed(1)}K`,
     marketCap: `$${(mcRaw / 1000).toFixed(1)}K`,
-
     protocol: Math.random() > 0.7 ? "meteora" : "pump",
-
     holders: Math.floor(Math.random() * 500) + 50,
     topTraders: Math.floor(Math.random() * 20),
     trophies: Math.floor(Math.random() * 5),
     crowns: `0/${Math.floor(Math.random() * 5) + 1}`,
     views: Math.floor(Math.random() * 2000),
-
     curveProgress: parseFloat(Math.random().toFixed(3)),
     txCount: Math.floor(Math.random() * 500),
-
     hasQuill: Math.random() > 0.8,
     hasPill: Math.random() > 0.8,
     hasWebsite: Math.random() > 0.8,
-
     badges: generateBadges(),
-
-    // 2. Assign the status here so filters work!
     status: randomStatus,
   };
 };
 
-// --- 2. HELPER: Number Formatter ---
 const formatCompact = (num: number, prefix = "") => {
   const formatter = Intl.NumberFormat("en-US", {
     notation: "compact",
@@ -112,27 +92,32 @@ const formatCompact = (num: number, prefix = "") => {
 // --- 3. MAIN HOOK ---
 export const useTokenSocket = () => {
   const dispatch = useDispatch();
-  const tokens = useSelector((state: RootState) => state.app.tokens);
+  
+  // Use selectAllTokens to check if populated
+  const allTokens = useSelector(selectAllTokens);
+  
+  // Use RootState to access the full store if needed, but selectTokenIds gives us IDs directly
+  // However, inside the hook we need the full objects to calculate next state.
+  // Since we have `allTokens` (array), we can pick from there.
 
   // A. INITIALIZATION
   useEffect(() => {
-    if (tokens.length === 0) {
-      // Generate 12 mock tokens with statuses
-      // Generate 30 mock tokens immediately
+    if (allTokens.length === 0) {
       const initialBatch = Array.from({ length: 30 }).map((_, i) =>
         generateMockToken(i)
       );
       dispatch(setInitialTokens(initialBatch));
     }
-  }, [dispatch, tokens.length]);
+  }, [dispatch, allTokens.length]);
 
   // B. LIVE SIMULATION
   useEffect(() => {
-    if (tokens.length === 0) return;
+    if (allTokens.length === 0) return;
 
     const intervalId = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * tokens.length);
-      const currentToken = tokens[randomIndex];
+      // Pick random token from array
+      const randomIndex = Math.floor(Math.random() * allTokens.length);
+      const currentToken = allTokens[randomIndex];
 
       if (!currentToken) return;
 
@@ -142,8 +127,7 @@ export const useTokenSocket = () => {
       const change = 1 + Math.random() * volatility * direction;
       const newPrice = currentToken.price * change;
 
-      const currentVolNum =
-        parseFloat(currentToken.volume.replace(/[^0-9.]/g, "")) * 1000 || 10000;
+      const currentVolNum = parseFloat(currentToken.volume.replace(/[^0-9.]/g, "")) * 1000 || 10000;
       const newVolNum = currentVolNum + Math.random() * 500;
 
       const newMarketCap = formatCompact(newPrice * 1000000000, "$");
@@ -156,9 +140,11 @@ export const useTokenSocket = () => {
       let newCurveProgress = currentCurve + 0.001;
       if (newCurveProgress > 1.0) newCurveProgress = 0.01;
 
+      // DISPATCH UPDATE
+      // Important: Use 'address' instead of 'ticker' because address is the Entity ID
       dispatch(
         updateTokenData({
-          ticker: currentToken.ticker,
+          address: currentToken.address, 
           updates: {
             price: newPrice,
             marketCap: newMarketCap,
@@ -172,5 +158,5 @@ export const useTokenSocket = () => {
     }, 200);
 
     return () => clearInterval(intervalId);
-  }, [tokens, dispatch]);
+  }, [allTokens, dispatch]);
 };

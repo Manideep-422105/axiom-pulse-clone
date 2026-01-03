@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback } from "react";
 import { RiCloseLine, RiStarLine } from "react-icons/ri";
 
 interface WatchlistModalProps {
@@ -6,15 +6,56 @@ interface WatchlistModalProps {
   onClose: () => void;
 }
 
-export default function WatchlistModal({
-  isOpen,
-  onClose,
-}: WatchlistModalProps) {
+interface HeaderCellProps {
+  label: string;
+  width?: string;
+  isFlex?: boolean;
+  align?: "start" | "end";
+}
+
+// --- Sub-Component: Header Cell ---
+const HeaderCell = memo<HeaderCellProps>(
+  ({ label, width, isFlex, align = "start" }) => (
+    <div
+      className={`flex flex-row h-full items-center ${
+        isFlex ? "flex-1 cursor-pointer group" : ""
+      } ${align === "end" ? "justify-end" : "justify-start"}`}
+      style={width ? { width } : undefined}
+    >
+      <span
+        className={`text-textTertiary text-[12px] font-normal ${
+          isFlex ? "group-hover:text-textSecondary" : ""
+        }`}
+      >
+        {label}
+      </span>
+    </div>
+  )
+);
+
+HeaderCell.displayName = "HeaderCell";
+
+// --- Main Component ---
+const WatchlistModal = memo<WatchlistModalProps>(({ isOpen, onClose }) => {
+  // Handle closing when clicking the backdrop
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
   if (!isOpen) return null;
 
   return (
-    // UPDATED: Increased blur to 'md'
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      onClick={handleBackdropClick}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-md animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+    >
       {/* Modal Container */}
       <div
         className="flex flex-col min-w-[596px] max-w-[596px] flex-shrink-0 min-h-[520px] bg-backgroundTertiary border-[1px] border-secondaryStroke rounded-[4px] shadow-2xl"
@@ -40,31 +81,11 @@ export default function WatchlistModal({
             className="border-primaryStroke/50 border-b-[1px] flex flex-row w-full h-[28px] min-h-[28px] px-[16px] gap-[0px] justify-start items-center sticky top-0 bg-backgroundTertiary z-10"
             style={{ paddingRight: "26px" }}
           >
-            <div className="flex flex-row flex-1 h-full justify-start items-center cursor-pointer group">
-              <span className="text-textTertiary text-[12px] font-normal group-hover:text-textSecondary">
-                Token{" "}
-              </span>
-            </div>
-            <div className="flex flex-row flex-1 h-full justify-start items-center cursor-pointer group">
-              <span className="text-textTertiary text-[12px] font-normal group-hover:text-textSecondary">
-                Market Cap{" "}
-              </span>
-            </div>
-            <div className="flex flex-row flex-1 h-full justify-start items-center cursor-pointer group">
-              <span className="text-textTertiary text-[12px] font-normal group-hover:text-textSecondary">
-                1h Volume ↓
-              </span>
-            </div>
-            <div className="flex flex-row w-[100px] h-full justify-start items-center cursor-pointer group">
-              <span className="text-textTertiary text-[12px] font-normal group-hover:text-textSecondary">
-                Liquidity{" "}
-              </span>
-            </div>
-            <div className="flex flex-row w-[32px] max-w-[32px] h-full justify-end items-center">
-              <span className="text-textTertiary text-[12px] font-normal">
-                Actions
-              </span>
-            </div>
+            <HeaderCell label="Token" isFlex />
+            <HeaderCell label="Market Cap" isFlex />
+            <HeaderCell label="1h Volume ↓" isFlex />
+            <HeaderCell label="Liquidity" width="100px" />
+            <HeaderCell label="Actions" width="32px" align="end" />
           </div>
 
           {/* Table Body (Empty State) */}
@@ -86,4 +107,8 @@ export default function WatchlistModal({
       </div>
     </div>
   );
-}
+});
+
+WatchlistModal.displayName = "WatchlistModal";
+
+export default WatchlistModal;

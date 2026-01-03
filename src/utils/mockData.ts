@@ -1,6 +1,5 @@
 import { TokenData } from "@/modules/pulse/components/molecules/TokenCard";
 
-// --- 1. ASSETS & NAMES ---
 const tokenImages = [
   "https://cryptologos.cc/logos/pepe-pepe-logo.png",
   "https://cryptologos.cc/logos/bonk1-bonk-logo.png",
@@ -57,13 +56,10 @@ const migratedNames = [
   "BOME",
 ];
 
-// --- 2. HELPERS ---
 const random = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
-
 const generateBadges = (status: string): TokenData["badges"] => {
   const badges: TokenData["badges"] = [];
 
-  // Logic: Migrated tokens usually have "Holders" or "Blue" badges
   if (status === "migrated") {
     badges.push({ type: "holders", label: "Top 1%", color: "green" });
     if (Math.random() > 0.5)
@@ -71,7 +67,6 @@ const generateBadges = (status: string): TokenData["badges"] => {
     return badges;
   }
 
-  // Logic: New tokens have risky/volatile badges
   if (status === "new") {
     badges.push({
       type: "holders",
@@ -85,7 +80,6 @@ const generateBadges = (status: string): TokenData["badges"] => {
     return badges;
   }
 
-  // Logic: Final tokens are mixed
   badges.push({ type: "boxes", label: "Whale", color: "green" });
   if (Math.random() > 0.5)
     badges.push({ type: "holders", label: "Distr", color: "green" });
@@ -97,13 +91,12 @@ const generateBadges = (status: string): TokenData["badges"] => {
 export const generateMockToken = (
   id: number
 ): TokenData & { status: string } => {
-  // Cycle through statuses to ensure we have data for ALL columns
   const statuses: Array<"new" | "final" | "migrated"> = [
     "new",
     "final",
     "migrated",
   ];
-  const status = statuses[id % 3]; // Ensures even distribution (0=new, 1=final, 2=migrated...)
+  const status = statuses[id % 3];
 
   let name = "";
   let ticker = "";
@@ -112,26 +105,25 @@ export const generateMockToken = (
   let timeAgo = "";
   let protocol: "pump" | "meteora" | "std" = "pump";
 
-  // Customize stats based on Status Category
   if (status === "new") {
     name = random(newNames);
     ticker = name.toUpperCase().substring(0, 4);
     price = Math.random() * 0.0001;
-    mc = Math.random() * 15000; // $0 - $15k
+    mc = Math.random() * 15000;
     timeAgo = `${Math.floor(Math.random() * 59) + 1}s`;
     protocol = "pump";
   } else if (status === "final") {
     name = random(finalNames);
     ticker = name.toUpperCase().substring(0, 4);
     price = Math.random() * 0.001;
-    mc = 30000 + Math.random() * 30000; // $30k - $60k
+    mc = 30000 + Math.random() * 30000;
     timeAgo = `${Math.floor(Math.random() * 59) + 1}m`;
     protocol = Math.random() > 0.5 ? "meteora" : "pump";
   } else {
     name = random(migratedNames);
     ticker = name;
     price = Math.random() * 10 + 0.1;
-    mc = 100000 + Math.random() * 5000000; // $100k+
+    mc = 100000 + Math.random() * 5000000;
     timeAgo = `${Math.floor(Math.random() * 20) + 1}d`;
     protocol = "std";
   }
@@ -146,12 +138,12 @@ export const generateMockToken = (
     timeAgo: timeAgo,
 
     price: price,
-    volume: `$${(mc / 5).toFixed(1)}K`, // Approx volume relative to MC
+    volume: `$${(mc / 5).toFixed(1)}K`,
     marketCap: `$${(mc / 1000).toFixed(1)}K`,
 
     protocol: protocol,
 
-    holders: Math.floor(mc / 10), // More MC = More holders
+    holders: Math.floor(mc / 10), 
     topTraders: Math.floor(Math.random() * 20),
     trophies: Math.floor(Math.random() * 10),
     crowns: `0/${Math.floor(Math.random() * 3) + 1}`,
@@ -166,6 +158,6 @@ export const generateMockToken = (
     hasWebsite: Math.random() > 0.5,
 
     badges: generateBadges(status),
-    status: status, // Vital for the column filtering!
+    status: status,
   };
 };
