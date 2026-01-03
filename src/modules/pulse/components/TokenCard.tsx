@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
   RiFileCopyFill,
-  RiQuillPenLine,
   RiSearchLine,
   RiGroupLine,
   RiTrophyLine,
@@ -11,219 +10,256 @@ import {
   RiCrosshair2Line,
   RiGhostLine,
   RiBox3Line,
-  RiCapsuleFill,
   RiRestaurantLine,
+  RiGlobalLine,
+  RiQuillPenLine,
+  RiStackLine,
+  RiBarChartLine,
+  RiCapsuleFill, 
 } from "react-icons/ri";
 
-// 1. Updated Interface with PRICE
+// --- Types ---
 export interface TokenData {
   image: string;
   ticker: string;
   name: string;
   address: string;
   timeAgo: string;
-  price: number; // <--- PRICE FIELD
+  price: number;
+  volume: string;
+  marketCap: string;
+  protocol: "pump" | "meteora" | "std";
   holders: number;
-  progress: number;
   topTraders: number;
   trophies: number;
   crowns: string;
   views: number;
+  curveProgress: number;
+  txCount: number;
+  
+  // --- ADD THIS LINE ---
+  status: "new" | "final" | "migrated"; 
+  // --------------------
+
+  hasQuill?: boolean;
+  hasPill?: boolean;
+  hasWebsite?: boolean;
   badges: {
     type: "holders" | "chef" | "sniper" | "ghost" | "boxes";
     label: string;
     subLabel?: string;
-    color: "green" | "blue" | "red" | "gray";
+    color: "green" | "red";
   }[];
 }
 
-const TokenCard = React.memo(({ data }: { data: TokenData }) => {
-  // --- Price Animation Logic ---
-  const [priceColor, setPriceColor] = useState<"green" | "red" | "neutral">(
-    "neutral"
-  );
+interface TokenCardProps {
+  data: TokenData;
+  variant?: "new" | "final" | "migrated"; 
+}
+
+const TokenCard = React.memo(({ data, variant = "final" }: TokenCardProps) => {
   const prevPriceRef = useRef(data.price);
+  const [priceColor, setPriceColor] = useState<"green" | "red" | "neutral">("neutral");
 
-  useEffect(() => {
-    // Determine direction of price change
-    if (data.price > prevPriceRef.current) {
-      setPriceColor("green");
-    } else if (data.price < prevPriceRef.current) {
-      setPriceColor("red");
+  // --- Helper: Dynamic Market Cap Color ---
+  const getMcColor = () => {
+    switch (variant) {
+      case "new": return "text-primaryBlue";      
+      case "migrated": return "text-primaryGreen"; 
+      case "final": 
+      default: return "text-primaryYellow";       
     }
+  };
 
-    // Update the ref for the next render
+  // --- Helper: Protocol Badge Logic ---
+  const getBadgeStyles = () => {
+    if (data.protocol === "meteora") {
+      return {
+        bg: "bg-meteora-gradient",
+        border: "bg-meteora-gradient/20",
+        ring: "text-primaryYellow", 
+      };
+    }
+    return {
+      bg: "bg-pump", 
+      border: "bg-pump/20",
+      ring: "text-pump",
+    };
+  };
+
+  const badgeStyle = getBadgeStyles();
+
+  // --- Price Flash Effect ---
+  useEffect(() => {
+    if (data.price > prevPriceRef.current) setPriceColor("green");
+    else if (data.price < prevPriceRef.current) setPriceColor("red");
     prevPriceRef.current = data.price;
-
-    // Reset color after 800ms for the "flash" effect
     const timer = setTimeout(() => setPriceColor("neutral"), 800);
-
     return () => clearTimeout(timer);
   }, [data.price]);
 
-  // Dynamic background classes for the flash effect
   const flashClass =
-    priceColor === "green"
-      ? "bg-primaryGreen/10 transition-colors duration-300"
-      : priceColor === "red"
-      ? "bg-red-500/10 transition-colors duration-300"
-      : "hover:bg-white/5 transition-colors duration-500"; // Default hover
+    priceColor === "green" ? "bg-primaryGreen/10 transition-colors duration-300"
+    : priceColor === "red" ? "bg-primaryRed/10 transition-colors duration-300"
+    : "hover:bg-white/5 transition-colors duration-500";
 
-  // Dynamic text classes for the price value
-  const textFlashClass =
-    priceColor === "green"
-      ? "text-primaryGreen"
-      : priceColor === "red"
-      ? "text-red-500"
-      : "text-textPrimary";
+  // --- SAFE DATA HANDLING ---
+  const safeMarketCap = data.marketCap || "0";
+  const displayMC = safeMarketCap.toString().startsWith('$') ? safeMarketCap : `$${safeMarketCap}`;
+
+  const safeVolume = data.volume || "0";
+  const displayVol = safeVolume.toString().startsWith('$') ? safeVolume : `$${safeVolume}`;
 
   return (
-    <div
-      className={`flex flex-row w-full gap-[12px] px-[12px] pt-[12px] pb-[2px] justify-start items-center cursor-pointer border-b border-primaryStroke ${flashClass}`}
-    >
-      {/* --- LEFT COLUMN: Image & Progress Ring --- */}
-      <div className="flex flex-col items-center gap-[4px]">
+    <div className={`flex flex-row w-full gap-[12px] px-[12px] pt-[12px] pb-[12px] justify-start items-start cursor-pointer border-b border-primaryStroke bg-background ${flashClass}`}>
+      
+      {/* --- LEFT COLUMN: Image & Ring --- */}
+      <div className="flex flex-col items-center gap-[4px] flex-shrink-0">
         <div className="relative w-[74px] h-[74px] flex justify-center items-center">
-          {/* 1. Pump Badge (Bottom Right) */}
-          <div className="absolute bottom-[-4px] right-[-4px] z-30 p-[1px] bg-primaryBlue rounded-full flex justify-center items-center w-[16px] h-[16px]">
+          
+          {/* Protocol Badge (Bottom Right) */}
+          <div className={`absolute bottom-[-4px] right-[-4px] z-30 p-[1px] ${badgeStyle.bg} rounded-full flex justify-center items-center w-[16px] h-[16px]`}>
             <div className="w-[14px] h-[14px] bg-background rounded-full flex justify-center items-center">
-              <div className="w-1.5 h-1.5 bg-primaryBlue rounded-full"></div>
+              <div className={`w-1.5 h-1.5 ${badgeStyle.bg} rounded-full`}></div>
             </div>
           </div>
 
-          {/* 2. Main Image Container */}
-          <div className="absolute z-20 bg-primaryStroke/20 p-[1px] rounded-[4px]">
+          {/* Image Container */}
+          <div className={`absolute z-20 ${badgeStyle.border} p-[1px] rounded-[4px]`}>
             <div className="bg-backgroundSecondary p-[2px] rounded-[3px]">
-              <div className="w-[68px] h-[68px] relative rounded-[1px] overflow-hidden">
-                <img
-                  src={data.image}
-                  alt={data.ticker}
-                  className="w-full h-full object-cover"
-                />
-                {/* Border Overlay */}
+              <div className="w-[68px] h-[68px] relative rounded-[1px] overflow-hidden group">
+                <img src={data.image} alt={data.ticker} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 border border-textPrimary/10 pointer-events-none rounded-[1px]"></div>
+                {/* Hover Camera Icon */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                   <RiEyeLine className="text-white text-[20px]" />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 3. Progress Ring SVG */}
+          {/* SVG Ring */}
           <div className="absolute top-0 left-0 w-[74px] h-[74px] z-10 flex items-center justify-center">
-            <svg
-              width="78"
-              height="78"
-              viewBox="0 0 78 78"
-              className="rotate-[-90deg]"
-            >
-              <path
-                d="M 76 76 L 6 76 Q 2 76 2 72 L 2 6 Q 2 2 6 2 L 72 2 Q 76 2 76 6 L 76 72 Q 76 76 76 76"
-                className="text-primaryGreen opacity-20"
-                stroke="currentColor"
-                fill="transparent"
-                strokeWidth="1"
-              />
-              <path
-                d="M 76 76 L 6 76 Q 2 76 2 72 L 2 6 Q 2 2 6 2 L 72 2 Q 76 2 76 6 L 76 72 Q 76 76 76 76"
-                className="text-primaryGreen"
-                stroke="currentColor"
-                fill="transparent"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeDasharray="296"
-                strokeDashoffset="250"
-              />
+            <svg width="78" height="78" viewBox="0 0 78 78">
+              <path d="M 76 76 L 6 76 Q 2 76 2 72 L 2 6 Q 2 2 6 2 L 72 2 Q 76 2 76 6 L 76 72 Q 76 76 76 76" className={`${badgeStyle.ring} opacity-40`} stroke="currentColor" fill="transparent" strokeWidth="1" />
+              <path d="M 76 76 L 6 76 Q 2 76 2 72 L 2 6 Q 2 2 6 2 L 72 2 Q 76 2 76 6 L 76 72 Q 76 76 76 76" className={badgeStyle.ring} stroke="currentColor" fill="transparent" strokeWidth="1" strokeLinecap="round" strokeDasharray="296" strokeDashoffset="3.3" />
             </svg>
           </div>
         </div>
 
         {/* Address Pill */}
-        <button className="text-textTertiary hover:text-primaryBlueHover transition-colors text-[10px] font-medium bg-primaryStroke/20 px-1.5 py-0.5 rounded flex items-center gap-1">
-          {data.address}
+        <button className="text-textTertiary hover:text-primaryBlueHover transition-colors text-[10px] font-medium bg-transparent px-1.5 py-0.5 rounded flex items-center gap-1 group">
+          <span className="group-hover:text-primaryBlueHover max-w-[50px] truncate">{data.address}</span>
+          <RiFileCopyFill className="hidden group-hover:block text-[10px]" />
         </button>
       </div>
 
       {/* --- RIGHT COLUMN: Content --- */}
-      <div className="flex flex-col flex-1 h-full gap-[8px] justify-start items-start min-w-0 pb-[12px]">
-        {/* ROW 1: Header (Ticker & Name) + PRICE DISPLAY */}
-        <div className="flex flex-row w-full justify-between items-end min-w-0">
-          <div className="flex flex-row gap-[4px] justify-start items-center overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 gap-[4px]">
+        
+        {/* ROW 1: Header */}
+        <div className="flex flex-row justify-between items-end min-h-[18px]">
+          <div className="flex flex-row gap-[6px] items-center overflow-hidden min-w-0">
             <span className="text-textPrimary text-[16px] font-medium tracking-tight whitespace-nowrap">
               {data.ticker}
             </span>
-            <div className="min-w-0 flex-1 overflow-hidden flex items-center gap-1 text-textTertiary hover:text-primaryBlueHover cursor-pointer transition-colors">
-              <span className="text-[14px] font-medium tracking-tight truncate">
-                {data.name}
-              </span>
-              <RiFileCopyFill className="text-[14px]" />
+            <div className="flex items-center gap-1 text-textTertiary hover:text-primaryBlueHover cursor-pointer transition-colors min-w-0 overflow-hidden">
+              <span className="text-[14px] font-medium truncate">{data.name}</span>
+              <RiFileCopyFill className="text-[14px] flex-shrink-0" />
             </div>
           </div>
-
-          {/* --- Price Display --- */}
-          <div
-            className={`text-[15px] font-mono font-medium transition-colors duration-300 ${textFlashClass}`}
-          >
-            ${data.price.toFixed(4)}
+          
+          {/* Market Stats */}
+          <div className="flex flex-row items-center gap-[8px] text-[14px] font-medium leading-none">
+            <div className="flex items-center gap-1">
+              <span className="text-textTertiary text-[12px] font-medium">V</span>
+              <span className="text-textPrimary tracking-tight font-bold">
+                {displayVol}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-textTertiary text-[12px] font-medium">MC</span>
+              <span className={`${getMcColor()} tracking-tight font-bold`}>
+                 {displayMC}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* ROW 2: Stats Line (Time | Icons | Counts) */}
-        <div className="flex flex-row w-full h-[18px] gap-[12px] items-center">
-          <span className="text-primaryGreen text-[14px] font-medium">
-            {data.timeAgo}
-          </span>
+        {/* ROW 2: Stats & Actions */}
+        <div className="flex flex-row w-full h-[18px] items-center mt-1">
+          {/* Time & Action Icons */}
+          <div className="flex items-center gap-[8px] mr-[12px]">
+            <span className="text-primaryGreen text-[14px] font-medium">{data.timeAgo}</span>
+            <div className="flex gap-[8px] items-center text-textSecondary">
+               
+               {data.hasPill && (
+                  <RiCapsuleFill className="text-[16px] hover:text-primaryBlueHover cursor-pointer transition-colors" />
+               )}
 
-          {/* Action Icons */}
-          <div className="flex gap-[8px] items-center text-textSecondary">
-            <RiQuillPenLine className="text-[16px] text-primaryGreen cursor-pointer" />
-            <RiCapsuleFill className="text-[16px] hover:text-primaryBlueHover transition-colors cursor-pointer" />
-            <RiSearchLine className="text-[16px] hover:text-primaryBlueHover transition-colors cursor-pointer" />
+               {data.hasQuill && (
+                 <RiQuillPenLine className="text-[16px] text-primaryRed hover:text-primaryBlueHover cursor-pointer transition-colors" />
+               )}
+
+               {data.hasWebsite && (
+                 <RiGlobalLine className="text-[16px] hover:text-primaryBlueHover cursor-pointer transition-colors" />
+               )}
+
+               <RiSearchLine className="text-[16px] hover:text-primaryBlueHover cursor-pointer transition-colors" />
+            </div>
           </div>
 
-          {/* Extended Stats */}
-          <div className="hidden xl:flex flex-row flex-1 h-[18px] gap-[10px] items-center justify-start">
-            {/* Holders */}
+          {/* Hidden on small screens */}
+          <div className="hidden xl:flex flex-row gap-[10px] items-center">
             <div className="flex items-center gap-[2px]">
               <RiGroupLine className="text-textTertiary text-[16px]" />
-              <span className="text-[12px] font-medium text-white">
-                {data.holders}
-              </span>
+              <span className="text-textPrimary text-[12px] font-medium">{data.holders}</span>
             </div>
-
-            {/* Top Traders */}
             <div className="flex items-center gap-[2px]">
-              <div className="w-[16px] h-[16px] bg-primaryStroke rounded flex items-center justify-center text-[10px] text-textTertiary">
-                T
+              <div className="w-[16px] h-[16px] flex items-center justify-center">
+                  <RiBarChartLine className="text-textTertiary text-[16px] rotate-90" />
               </div>
-              <span className="text-textPrimary text-[12px] font-medium">
-                {data.topTraders}
-              </span>
+              <span className="text-textPrimary text-[12px] font-medium">{data.topTraders}</span>
             </div>
-
-            {/* Trophies */}
             <div className="flex items-center gap-[2px]">
               <RiTrophyLine className="text-textTertiary text-[16px]" />
-              <span className="text-textPrimary text-[12px] font-medium">
-                {data.trophies}
-              </span>
+              <span className="text-textPrimary text-[12px] font-medium">{data.trophies}</span>
             </div>
-
-            {/* Crowns */}
             <div className="flex items-center gap-[2px]">
-              <RiVipCrown2Line className="text-textTertiary text-[16px]" />
-              <span className="text-textPrimary text-[12px] font-medium">
-                {data.crowns}
-              </span>
+              <RiVipCrown2Line className="text-primaryYellow text-[16px] pb-[1px]" />
+              <span className="text-textPrimary text-[12px] font-medium">{data.crowns}</span>
             </div>
+          </div>
 
-            {/* Views */}
-            <div className="flex items-center gap-1 text-textSecondary ml-auto">
-              <RiEyeLine className="text-[14px]" />
-              <span className="text-[11px] font-medium">{data.views}</span>
-            </div>
+          {/* RIGHT SIDE: Curve / TX */}
+          <div className="flex ml-auto items-center gap-[8px]">
+             {/* Curve F */}
+             <div className="flex items-center gap-1">
+                <span className="text-textTertiary text-[12px] font-medium">F</span>
+                <RiStackLine className={`${badgeStyle.ring} text-[12px]`} /> 
+                <span className="text-textPrimary text-[12px] font-medium">
+                  {Number.isNaN(data.curveProgress) || data.curveProgress === undefined ? "0.000" : data.curveProgress}
+                </span>
+             </div>
+             
+             {/* TX Count */}
+             <div className="flex items-center gap-1">
+                <span className="text-textTertiary text-[12px] font-medium">TX</span>
+                <span className="text-textPrimary text-[12px] font-medium">
+                   {data.txCount || 0}
+                </span>
+             </div>
+
+             {/* Progress Bar */}
+             <div className="w-[20px] h-[2px] bg-primaryStroke rounded-full overflow-hidden">
+                <div className="h-full bg-primaryGreen w-1/2"></div>
+             </div>
           </div>
         </div>
 
-        {/* ROW 3: Badges */}
-        <div className="hidden xl:flex flex-row w-full h-[24px] gap-[4px] items-center mt-1">
+        {/* ROW 3: Badges (PIXEL PERFECT UPDATE) */}
+        {/* We use specific responsive classes from your inspection: hidden sm:flex md:hidden lg:hidden xl:flex */}
+        <div className="hidden sm:flex md:hidden lg:hidden xl:flex flex-row w-full h-[24px] gap-[4px] justify-start items-end mt-[2px]">
           {data.badges.map((badge, idx) => (
             <Badge key={idx} badge={badge} />
           ))}
@@ -233,7 +269,7 @@ const TokenCard = React.memo(({ data }: { data: TokenData }) => {
   );
 });
 
-// Helper Component for the Pill Badges (Restored Full UI)
+// Helper: Badge Component (Updated matching Inspection)
 function Badge({ badge }: { badge: TokenData["badges"][0] }) {
   const icons = {
     holders: <RiUserStarLine className="text-[14px]" />,
@@ -242,29 +278,20 @@ function Badge({ badge }: { badge: TokenData["badges"][0] }) {
     ghost: <RiGhostLine className="text-[14px]" />,
     boxes: <RiBox3Line className="text-[12px]" />,
   };
-
-  // Dynamic text color based on prop
-  const textColor =
-    badge.color === "green"
-      ? "text-primaryGreen"
-      : badge.color === "blue"
-      ? "text-primaryBlue"
-      : "text-textSecondary";
-
+  const colorClass = badge.color === "green" ? "text-primaryGreen" : "text-primaryRed";
+  
   return (
-    <div
-      className={`
-         flex flex-row gap-[4px] h-[24px] px-[6px] justify-start items-center rounded-full 
-         bg-backgroundSecondary border border-primaryStroke/50
-         ${textColor}
-      `}
-    >
-      <span className={textColor}>{icons[badge.type]}</span>
-      <span className="text-[12px] font-medium">{badge.label}</span>
+    <div className={`flex flex-row gap-[4px] flex-shrink-0 w-fit h-[24px] px-[5px] justify-start items-center rounded-full bg-backgroundSecondary border border-primaryStroke/50`}>
+      {/* Icon Wrapper (Matches inspection structure for chef hat) */}
+      <div className={`flex items-center justify-center ${badge.type === 'chef' || badge.type === 'boxes' ? 'min-w-[14px] min-h-[14px]' : ''}`}>
+         <span className={colorClass}>{icons[badge.type]}</span>
+      </div>
+
+      <span className={`${colorClass} text-[12px] font-medium leading-none`}>{badge.label}</span>
+      
+      {/* Sublabel (Matches inspection "1h" style) */}
       {badge.subLabel && (
-        <span className="text-textSecondary text-[11px] font-medium ml-1">
-          {badge.subLabel}
-        </span>
+        <span className="text-textSecondary text-[11px] font-medium leading-[16px] whitespace-nowrap">{badge.subLabel}</span>
       )}
     </div>
   );

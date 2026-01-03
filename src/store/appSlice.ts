@@ -1,38 +1,41 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TokenData } from "@/modules/pulse/components/TokenCard"; // Adjust path if needed
+import { TokenData } from "@/modules/pulse/components/TokenCard"; // Ensure this matches your TokenCard file path
 
 interface AppState {
   initialized: boolean;
-  // We store tokens here. In a real app, you might separate this into a 'marketSlice'
-  tokens: TokenData[]; 
+  tokens: TokenData[];
 }
 
 const initialState: AppState = {
   initialized: true,
-  tokens: [], // Initial empty state
+  tokens: [],
 };
 
 const appSlice = createSlice({
   name: "app",
   initialState,
   reducers: {
-    // Action to load initial data (fetched from API)
+    // 1. Set Initial Data (unchanged)
     setInitialTokens: (state, action: PayloadAction<TokenData[]>) => {
       state.tokens = action.payload;
     },
-    // Action to update a SINGLE token's price (Efficient update)
-    updateTokenPrice: (state, action: PayloadAction<{ ticker: string; newPrice: number; newProgress?: number }>) => {
-      const { ticker, newPrice, newProgress } = action.payload;
-      const token = state.tokens.find((t) => t.ticker === ticker);
-      if (token) {
-        token.price = newPrice;
-        if (newProgress !== undefined) {
-          token.progress = newProgress;
-        }
+
+    // 2. GENERIC Update Action (Replaces updateTokenPrice)
+    // allowing you to update price, volume, holders, or any other field dynamically
+    updateTokenData: (state, action: PayloadAction<{ ticker: string; updates: Partial<TokenData> }>) => {
+      const { ticker, updates } = action.payload;
+      const index = state.tokens.findIndex((t) => t.ticker === ticker);
+      
+      if (index !== -1) {
+        // Efficiently merge the new partial data into the existing token
+        state.tokens[index] = {
+          ...state.tokens[index],
+          ...updates,
+        };
       }
     },
   },
 });
 
-export const { setInitialTokens, updateTokenPrice } = appSlice.actions;
+export const { setInitialTokens, updateTokenData } = appSlice.actions;
 export default appSlice.reducer;

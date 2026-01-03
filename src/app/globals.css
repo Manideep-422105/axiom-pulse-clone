@@ -2,27 +2,42 @@
 
 /* --- 1. THEME CONFIGURATION --- */
 @theme {
-  /* Your Custom Colors */
+  /* --- Base Backgrounds --- */
   --color-background: #000000;
+  --color-backgroundSecondary: #111216;
+
+  /* --- Brand Colors --- */
   --color-primaryBlue: #2955FF;
   --color-primaryBlueHover: #526FFF;
   --color-primaryGreen: #10b981;
+  --color-primaryRed: #ef4444;
+  --color-primaryYellow: #eab308;
+
+  /* --- ADDED: Specific Protocol Colors for Axiom Clone --- */
+  --color-pump: #10b981;          /* Teal/Green for Pump.fun badges */
+  --color-virtualCurve: #8b5cf6;  /* Purple for Virtual Curve badges */
+
+  /* --- ADDED: Custom Gradients --- */
+  --background-image-meteora-gradient: linear-gradient(219deg, #FFD700 0%, #DAA520 48.97%, #B8860B 48.98%, #996515 100%);
+
+  /* --- UI Borders/Strokes --- */
   --color-primaryStroke: #22242D;
   --color-secondaryStroke: #2A2D36;
+
+  /* --- Text Hierarchy --- */
   --color-textPrimary: #FFFFFF;
   --color-textSecondary: #9CA3AF;
   --color-textTertiary: #6B7280;
-  --color-backgroundSecondary: #111216;
   
-  /* Your Custom Animation */
+  /* --- Custom Animation --- */
   --animate-ticker: ticker 10s linear infinite;
 
-  /* Keep existing font variables if you are using Geist/Google Fonts */
+  /* --- Fonts --- */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
-/* --- 2. KEYFRAMES (Standard CSS) --- */
+/* --- 2. KEYFRAMES --- */
 @keyframes ticker {
   0% { transform: translateX(0); }
   100% { transform: translateX(-100%); }
@@ -33,43 +48,45 @@ body {
   background: var(--color-background);
   color: var(--color-textPrimary);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* --- 4. UTILITY COMPONENTS --- */
-.header-btn {
-  @apply w-9 h-9 flex items-center justify-center rounded-xl 
-         border border-primaryStroke bg-black/30 
-         hover:bg-gray-800 transition;
+@layer components {
+  .header-btn {
+    @apply w-9 h-9 flex items-center justify-center rounded-xl 
+           border border-primaryStroke bg-black/30 
+           hover:bg-gray-800 transition;
+  }
+
+  .header-pill {
+    @apply flex items-center gap-2 px-4 py-2 rounded-xl 
+           border border-primaryStroke bg-black/30 
+           hover:bg-gray-800 transition;
+  }
 }
 
-.header-pill {
-  @apply flex items-center gap-2 px-4 py-2 rounded-xl 
-         border border-primaryStroke bg-black/30 
-         hover:bg-gray-800 transition;
-}
-
-/* --- 5. CUSTOM SCROLLBAR (Added) --- */
+/* --- 5. CUSTOM SCROLLBAR --- */
 @layer utilities {
-  /* Chrome, Edge, Safari */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px; /* Slim width */
-    height: 6px; /* Slim height for horizontal scroll */
+    width: 6px;
+    height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent; /* Invisible track */
+    background: transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: var(--color-primaryStroke); /* Matches your border color */
-    border-radius: 9999px; /* Pill shape */
+    background-color: var(--color-primaryStroke);
+    border-radius: 9999px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: var(--color-secondaryStroke); /* Slightly lighter on hover */
+    background-color: var(--color-secondaryStroke);
   }
 
-  /* Firefox */
   .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: var(--color-primaryStroke) transparent;
