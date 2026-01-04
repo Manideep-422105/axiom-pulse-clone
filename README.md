@@ -144,9 +144,4 @@ Mobile View
 - Real-time updates
 ```
 
-```text
-Settings Modals
-- Snipe Settings
-- Display Preferences
-- Alerts Configuration
-```
+
